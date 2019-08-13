@@ -1,46 +1,84 @@
 <head>
-    <link rel="stylesheet", type="text/css", href="index.css"/>
-    <script type="text/javascript" src="numbers.js"></script>
+  <link rel="stylesheet" , type="text/css" , href="index.css" />
+  <script type="text/javascript" src="numbers.js"></script>
 </head>
 
-    
 <html>
-
-<body>
-    
-<div class="topnav" id="NavBar">
-    <a href="index.html" class="notActive">Home</a>
-    <a href="indiv.html" class="notActive">Individuals</a>
-    <a href="hrs.html" class="active">Homerooms</a>
-    <a href="class.html" class="notActive">Class</a>
-    <a href="helpus.html" class="notActive">Fundraise</a>
-    <a href="about.html" class="notActive">About</a>
-</div>
-
-<div class="title">
-    Homeroom Stats
-</div>
-
-<ul class="none">
-    <li>
-        Testing
-    </li>
-
-    <div id="ranks">
-        <ul id="amounts"> 
-
-        </ul>
+  <body>
+    <div class="topnav" id="NavBar">
+      <a href="index.html" class="notActive">Home</a>
+      <a href="indiv.html" class="notActive">Individuals</a>
+      <a href="hrs.html" class="active">Homerooms</a>
+      <a href="class.html" class="notActive">Class</a>
+      <a href="helpus.html" class="notActive">Fundraise</a>
+      <a href="about.html" class="notActive">About</a>
     </div>
-</ul>
 
-</body>
+    <div class="title">
+      Homeroom Stats
+    </div>
 
+    <ul class="none" id="leaderboard"></ul>
+
+    <script type="module">
+      import * as teachers from '/numbers.js';
+      const teacherArray = [];
+      for (let teacher in teachers) {
+        teacherArray.push({
+          name: teacher,
+          weeks: teachers[teacher]
+        });
+      }
+
+      function teacherToString(teacher) {
+        return teacher.name + ': ' + teacher.weeks.join(', ');
+      }
+
+      function capitalize(name) {
+        return name[0].toUpperCase() + name.substring(1);
+      }
+
+      const sortedWeeks = teacherArray.sort((a, b) => b.weeks[0] - a.weeks[0]);
+
+      class TeacherStats extends HTMLElement {
+        constructor() {
+          super();
+          const shadow = this.attachShadow({ mode: 'open' });
+          const li = document.createElement('li');
+          this.name = document.createElement('span');
+          this.ol = document.createElement('ol');
+          li.appendChild(this.name);
+          li.appendChild(this.ol);
+          shadow.appendChild(li);
+        }
+
+        setWeeks(weeks) {
+          this.ol.innerHTML = weeks
+            .split(',')
+            .map(week => `<li>${week}</li>`)
+            .join('\n');
+        }
+
+        connectedCallback() {
+          this.name.innerText = this.getAttribute('name');
+          this.setWeeks(this.getAttribute('weeks'));
+        }
+
+        attributeChangedCallback() {
+          this.name.innerText = this.getAttribute('name');
+          this.setWeeks(this.getAttribute('weeks'));
+        }
+      }
+      customElements.define('teacher-stats', TeacherStats);
+
+      const leaderboard = document.querySelector('#leaderboard');
+
+      for (let teacher of sortedWeeks) {
+        const stats = document.createElement('teacher-stats');
+        stats.setAttribute('name', capitalize(teacher.name));
+        stats.setAttribute('weeks', teacher.weeks);
+        leaderboard.appendChild(stats);
+      }
+    </script>
+  </body>
 </html>
-
-<script src="numbers.js">
-
-import { greisch , golka , spanny , delkamiller , cotton , bauman , piernicky , sisson , mcgill } from './numbers.js';
-
-document.getElementById("amounts") = alert (greisch.w1);
-
-</script>
